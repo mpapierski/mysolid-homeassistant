@@ -1,6 +1,6 @@
 [project]
 name = "mysolid-homeassistant"
-version = "0.1.0"
+version = "0.1.1"
 description = "Home Assistant custom integration for MySolid / Solid Security."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -10,7 +10,7 @@ dev = [
     "aiohttp>=3.13.3",
     "cryptography>=46.0.5",
     "PyTurboJPEG>=1.8.2 ; python_full_version >= '3.13.2'",
-    "protobuf==6.31.1",
+    "protobuf>=6.31.1,<7.0.0",
     "pytest-homeassistant-custom-component==0.13.316 ; python_full_version >= '3.13.2'",
     "ruff>=0.13.0",
 ]
