@@ -19,7 +19,7 @@ from .entity import MySolidCoordinatorEntity
 from .models import PropertySnapshot
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, kw_only=True)
 class MySolidBinarySensorDescription(BinarySensorEntityDescription):
     value_fn: Callable[[MySolidRuntimeData, PropertySnapshot], bool]
 

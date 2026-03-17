@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import importlib
+
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
@@ -52,3 +54,9 @@ async def test_setup_entry_creates_entities_and_device(
         if any(identifier[0] == DOMAIN for identifier in device.identifiers)
     )
     assert device.name == "Home"
+
+
+def test_platform_modules_import() -> None:
+    """Platform modules should import cleanly."""
+    importlib.import_module("custom_components.mysolid.binary_sensor")
+    importlib.import_module("custom_components.mysolid.sensor")

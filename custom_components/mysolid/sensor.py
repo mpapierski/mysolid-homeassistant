@@ -15,7 +15,7 @@ from .entity import MySolidCoordinatorEntity
 from .models import PropertySnapshot
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, kw_only=True)
 class MySolidSensorDescription(SensorEntityDescription):
     value_fn: Callable[[PropertySnapshot], str | int | None]
 
