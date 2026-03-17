@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import ssl
 from collections import defaultdict
 from datetime import UTC, datetime, timedelta
 from typing import Any
@@ -12,6 +13,7 @@ import aiohttp
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.importlib import async_import_module
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import MySolidClient, default_device_name
@@ -27,7 +29,6 @@ from .const import (
 )
 from .exceptions import MySolidApiError, MySolidAuthError
 from .models import MySolidSnapshot, PropertyDetails, PropertySnapshot, RelaySnapshot
-from .push import MySolidPushListener, PushError, bootstrap_push_credentials
 from .storage import MySolidStateStore, StoredState
 
 LOGGER = logging.getLogger(__name__)
@@ -68,6 +69,7 @@ class MySolidRuntimeData:
         self._auth_lock = asyncio.Lock()
         self._refresh_lock = asyncio.Lock()
         self._push_task: asyncio.Task[None] | None = None
+        self._push_ssl_context: ssl.SSLContext | None = None
         self._stopped = False
 
     @property
@@ -314,9 +316,13 @@ class MySolidRuntimeData:
         )
 
     async def _async_push_loop(self) -> None:
+        push_module = await async_import_module(self.hass, "custom_components.mysolid.push")
+        listener_class = push_module.MySolidPushListener
+        push_error = push_module.PushError
+        bootstrap_push_credentials = push_module.bootstrap_push_credentials
         delay = self.push_reconnect_seconds
         while not self._stopped:
-            listener: MySolidPushListener | None = None
+            listener = None
             credentials = self.stored_state.push_credentials if self.stored_state else None
             try:
                 await self.async_login()
@@ -330,10 +336,15 @@ class MySolidRuntimeData:
                 access_token = self.client.access_token
                 if access_token is None:
                     raise MySolidAuthError(401, "Missing access token")
-                listener = MySolidPushListener(
+                if self._push_ssl_context is None:
+                    self._push_ssl_context = await self.hass.async_add_executor_job(
+                        ssl.create_default_context
+                    )
+                listener = listener_class(
                     credentials,
                     access_token=access_token.value,
                     persistent_ids=self.stored_state.persistent_ids if self.stored_state else (),
+                    ssl_context=self._push_ssl_context,
                 )
                 async with listener:
                     self.async_set_push_status(connected=True, error=None)
@@ -352,7 +363,7 @@ class MySolidRuntimeData:
                     )
                 raise
             except (
-                PushError,
+                push_error,
                 OSError,
                 ConnectionError,
                 asyncio.IncompleteReadError,
