@@ -310,7 +310,8 @@ class MySolidRuntimeData:
     def async_start_push(self) -> None:
         if self._push_task is not None or self._stopped:
             return
-        self._push_task = self.hass.async_create_task(
+        self._push_task = self.entry.async_create_background_task(
+            self.hass,
             self._async_push_loop(),
             name=f"{DOMAIN}_push_{self.entry.entry_id}",
         )

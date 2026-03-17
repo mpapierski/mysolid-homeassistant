@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
+import asyncio
 import importlib
+from unittest.mock import MagicMock
 
 from homeassistant.components.alarm_control_panel import AlarmControlPanelState
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
 from custom_components.mysolid.const import DOMAIN, entity_unique_id
+from custom_components.mysolid.coordinator import MySolidRuntimeData
+from custom_components.mysolid.storage import MySolidStateStore
 
 from .conftest import PROPERTY_ID, build_snapshot
 
@@ -108,3 +112,29 @@ def test_platform_modules_import() -> None:
     """Platform modules should import cleanly."""
     importlib.import_module("custom_components.mysolid.binary_sensor")
     importlib.import_module("custom_components.mysolid.sensor")
+
+
+async def test_push_loop_uses_config_entry_background_task(
+    hass,
+    mock_entry,
+) -> None:
+    """Push startup should not block bootstrap."""
+    runtime = MySolidRuntimeData(
+        hass=hass,
+        entry=mock_entry,
+        client=MagicMock(),
+        store=MagicMock(spec=MySolidStateStore),
+    )
+    calls: list[tuple[object, str, bool]] = []
+
+    def _async_create_background_task(hass_arg, target, name, eager_start=True):
+        calls.append((hass_arg, name, eager_start))
+        target.close()
+        return hass.loop.create_task(asyncio.sleep(0))
+
+    mock_entry.async_create_background_task = _async_create_background_task
+
+    runtime.async_start_push()
+    await hass.async_block_till_done()
+
+    assert calls == [(hass, f"{DOMAIN}_push_{mock_entry.entry_id}", True)]
