@@ -10,14 +10,19 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
 
 from .const import DOMAIN, PLATFORMS
-from .coordinator import build_runtime
-from .services import async_register_services, async_unregister_services
-from .storage import MySolidStateStore
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 
+def build_runtime(hass: HomeAssistant, entry: ConfigEntry):
+    from .coordinator import build_runtime as _build_runtime
+
+    return _build_runtime(hass, entry)
+
+
 async def async_setup(hass: HomeAssistant, config: Mapping[str, Any]) -> bool:
+    from .services import async_register_services
+
     hass.data.setdefault(DOMAIN, {})
     await async_register_services(hass)
     return True
@@ -33,6 +38,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    from .services import async_unregister_services
+
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if not unload_ok:
         return False
@@ -45,4 +52,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    from .storage import MySolidStateStore
+
     await MySolidStateStore(hass, entry.entry_id).async_remove()
