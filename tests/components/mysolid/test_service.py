@@ -27,7 +27,7 @@ async def test_alarm_control_panel_write_invokes_runtime(
     alarm_entity = entity_registry.async_get_entity_id(
         "alarm_control_panel",
         DOMAIN,
-        entity_unique_id(entry_key, PROPERTY_ID, "alarm::1111::1"),
+        entity_unique_id(entry_key, PROPERTY_ID, "alarm"),
     )
 
     await hass.services.async_call(
@@ -64,7 +64,7 @@ async def test_create_suspension_service_invokes_runtime(
     alarm_entity = entity_registry.async_get_entity_id(
         "alarm_control_panel",
         DOMAIN,
-        entity_unique_id(entry_key, PROPERTY_ID, "alarm::1111::1"),
+        entity_unique_id(entry_key, PROPERTY_ID, "alarm"),
     )
 
     await mysolid_services._async_handle_create_suspension(

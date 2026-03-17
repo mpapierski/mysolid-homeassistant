@@ -66,7 +66,13 @@ def build_entry() -> MockConfigEntry:
     )
 
 
-def build_snapshot() -> MySolidSnapshot:
+def build_snapshot(
+    *,
+    armed: bool = False,
+    include_alarm_relay: bool = True,
+    include_switch_relay: bool = True,
+    include_active_alarm: bool = True,
+) -> MySolidSnapshot:
     raw_camera = {
         "serialNumber": "CAM-1",
         "address": "192.168.1.10",
@@ -86,7 +92,7 @@ def build_snapshot() -> MySolidSnapshot:
             number="1",
             code="00-001",
         ),
-        armed=False,
+        armed=armed,
         convoys_enabled=True,
         cameras_enabled=True,
         cameras=(
@@ -110,43 +116,54 @@ def build_snapshot() -> MySolidSnapshot:
                 "number": "1",
                 "code": "00-001",
             },
-            "armed": False,
+            "armed": armed,
             "convoysEnabled": True,
             "camerasEnabled": True,
             "cameras": [raw_camera],
         },
     )
-    alarm_relay = RelaySnapshot(
-        account_id=PROPERTY_ID,
-        transmitter_id=TRANSMITTER_ID,
-        relay_number=RELAY_NUMBER,
-        label="Alarm",
-        state="DISARM",
-        requested_state="DISARM",
-        change_status="SUCCESS",
-        state_set="ARM3",
-        relay_pin_confirmation=True,
-    )
-    switch_relay = RelaySnapshot(
-        account_id=PROPERTY_ID,
-        transmitter_id=TRANSMITTER_ID,
-        relay_number=SWITCH_RELAY_NUMBER,
-        label="Gate",
-        state="ON",
-        requested_state="ON",
-        change_status="SUCCESS",
-        state_set="ON_OFF",
-        relay_pin_confirmation=False,
-    )
+    relays: list[RelaySnapshot] = []
+    if include_alarm_relay:
+        relays.append(
+            RelaySnapshot(
+                account_id=PROPERTY_ID,
+                transmitter_id=TRANSMITTER_ID,
+                relay_number=RELAY_NUMBER,
+                label="Alarm",
+                state="ARM" if armed else "DISARM",
+                requested_state="ARM" if armed else "DISARM",
+                change_status="SUCCESS",
+                state_set="ARM3",
+                relay_pin_confirmation=True,
+            )
+        )
+    if include_switch_relay:
+        relays.append(
+            RelaySnapshot(
+                account_id=PROPERTY_ID,
+                transmitter_id=TRANSMITTER_ID,
+                relay_number=SWITCH_RELAY_NUMBER,
+                label="Gate",
+                state="ON",
+                requested_state="ON",
+                change_status="SUCCESS",
+                state_set="ON_OFF",
+                relay_pin_confirmation=False,
+            )
+        )
     property_snapshot = PropertySnapshot(
         details=property_details,
-        relays=(alarm_relay, switch_relay),
+        relays=tuple(relays),
         active_alarms=(
-            {
-                "eventId": 444444,
-                "group": "ALARM",
-                "label": "Intrusion",
-            },
+            (
+                {
+                    "eventId": 444444,
+                    "group": "ALARM",
+                    "label": "Intrusion",
+                },
+            )
+            if include_active_alarm
+            else ()
         ),
         authorized_users=(
             {

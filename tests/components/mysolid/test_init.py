@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import importlib
 
+from homeassistant.components.alarm_control_panel import AlarmControlPanelState
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
 from custom_components.mysolid.const import DOMAIN, entity_unique_id
 
-from .conftest import PROPERTY_ID
+from .conftest import PROPERTY_ID, build_snapshot
 
 
 async def test_setup_entry_creates_entities_and_device(
@@ -29,7 +30,7 @@ async def test_setup_entry_creates_entities_and_device(
     alarm_entity = entity_registry.async_get_entity_id(
         "alarm_control_panel",
         DOMAIN,
-        entity_unique_id(entry_key, PROPERTY_ID, "alarm::1111::1"),
+        entity_unique_id(entry_key, PROPERTY_ID, "alarm"),
     )
     switch_entity = entity_registry.async_get_entity_id(
         "switch",
@@ -42,7 +43,7 @@ async def test_setup_entry_creates_entities_and_device(
         entity_unique_id(entry_key, PROPERTY_ID, "camera::0::0"),
     )
 
-    assert hass.states.get(alarm_entity).state == "disarmed"
+    assert hass.states.get(alarm_entity).state == AlarmControlPanelState.TRIGGERED
     assert hass.states.get(switch_entity).state == "on"
     assert camera_entity is not None
     assert entity_registry.async_get(camera_entity).original_name == "Front gate"
@@ -54,6 +55,43 @@ async def test_setup_entry_creates_entities_and_device(
         if any(identifier[0] == DOMAIN for identifier in device.identifiers)
     )
     assert device.name == "Home"
+
+
+async def test_setup_entry_creates_property_alarm_panel_without_relays(
+    hass,
+    runtime_fixture,
+    mock_entry,
+    monkeypatch,
+) -> None:
+    """A property alarm entity should exist even when MySolid exposes no alarm relay."""
+    runtime = runtime_fixture(
+        build_snapshot(
+            armed=True,
+            include_alarm_relay=False,
+            include_active_alarm=False,
+        )
+    )
+
+    def _build_runtime(_hass, entry):
+        runtime.entry = entry
+        return runtime
+
+    monkeypatch.setattr("custom_components.mysolid.build_runtime", _build_runtime)
+    mock_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_entry.entry_id)
+    await hass.async_block_till_done()
+
+    entry_key = mock_entry.unique_id or mock_entry.entry_id
+    entity_registry = er.async_get(hass)
+    alarm_entity = entity_registry.async_get_entity_id(
+        "alarm_control_panel",
+        DOMAIN,
+        entity_unique_id(entry_key, PROPERTY_ID, "alarm"),
+    )
+
+    assert alarm_entity is not None
+    assert hass.states.get(alarm_entity).state == AlarmControlPanelState.ARMED_AWAY
 
 
 def test_platform_modules_import() -> None:
