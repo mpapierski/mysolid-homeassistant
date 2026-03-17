@@ -42,18 +42,17 @@ async def test_setup_entry_creates_entities_and_device(
         DOMAIN,
         entity_unique_id(entry_key, PROPERTY_ID, "camera::0::0"),
     )
-    external_id_entity = entity_registry.async_get_entity_id(
+    active_alarms_entity = entity_registry.async_get_entity_id(
         "sensor",
         DOMAIN,
-        entity_unique_id(entry_key, PROPERTY_ID, "sensor_external_id"),
+        entity_unique_id(entry_key, PROPERTY_ID, "sensor_active_alarm_count"),
     )
 
     assert hass.states.get(alarm_entity).state == AlarmControlPanelState.TRIGGERED
     assert hass.states.get(switch_entity).state == "on"
     assert camera_entity is not None
-    assert hass.states.get(external_id_entity).state == "ABCD1234"
+    assert active_alarms_entity == "sensor.abcd1234_active_alarms"
     assert entity_registry.async_get(camera_entity).original_name == "Front gate"
-    assert entity_registry.async_get(external_id_entity).original_name == "External ID"
 
     device_registry = dr.async_get(hass)
     device = next(
@@ -61,7 +60,11 @@ async def test_setup_entry_creates_entities_and_device(
         for device in device_registry.devices.values()
         if any(identifier[0] == DOMAIN for identifier in device.identifiers)
     )
-    assert device.name == "Example, 1, 00-001, Warsaw"
+    assert device.name == "ABCD1234"
+    assert device.model == (
+        "Address: Example, 1, 00-001, Warsaw | "
+        "External ID: ABCD1234 | Name: Home"
+    )
 
 
 async def test_setup_entry_creates_property_alarm_panel_without_relays(

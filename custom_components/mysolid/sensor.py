@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .coordinator import MySolidRuntimeData
@@ -22,28 +21,6 @@ class MySolidSensorDescription(SensorEntityDescription):
 
 
 SENSORS: tuple[MySolidSensorDescription, ...] = (
-    MySolidSensorDescription(
-        key="external_id",
-        name="External ID",
-        value_fn=lambda snapshot: snapshot.details.external_id,
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    MySolidSensorDescription(
-        key="property_name",
-        name="Name",
-        value_fn=lambda snapshot: snapshot.details.name,
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    MySolidSensorDescription(
-        key="address",
-        name="Address",
-        value_fn=lambda snapshot: (
-            snapshot.details.address.label()
-            if snapshot.details.address is not None
-            else None
-        ),
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
     MySolidSensorDescription(
         key="active_alarm_count",
         name="Active alarms",
