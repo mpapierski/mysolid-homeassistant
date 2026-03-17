@@ -1,0 +1,43 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect MySolid account",
+        "description": "Enter your MySolid region, account email, and password.",
+        "data": {
+          "region": "Region",
+          "host": "Custom host",
+          "email": "Email",
+          "password": "Password"
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure MySolid",
+        "description": "Update the account connection details.",
+        "data": {
+          "region": "Region",
+          "host": "Custom host",
+          "email": "Email",
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to MySolid.",
+      "invalid_auth": "Authentication failed.",
+      "required": "This field is required."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "MySolid options",
+        "data": {
+          "push_enabled": "Enable push listener",
+          "poll_interval_seconds": "Polling interval (seconds)",
+          "push_reconnect_seconds": "Push reconnect delay (seconds)"
+        }
+      }
+    }
+  }
+}

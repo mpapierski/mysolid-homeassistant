@@ -1,0 +1,6 @@
+{
+  "name": "MySolid",
+  "render_readme": true,
+  "domains": ["alarm_control_panel", "binary_sensor", "camera", "sensor", "switch"],
+  "homeassistant": "2025.1.0"
+}

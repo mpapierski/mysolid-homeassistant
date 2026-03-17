@@ -1,0 +1,186 @@
+refresh:
+  name: Refresh
+  description: Refresh MySolid data immediately.
+  fields:
+    entry_id:
+      selector:
+        text:
+
+report_alarm:
+  name: Report alarm
+  description: Report a new alarm for one property.
+  target:
+    entity:
+      integration: mysolid
+  fields:
+    property_id:
+      selector:
+        number:
+          min: 1
+          mode: box
+    alarm_type:
+      selector:
+        text:
+    latitude:
+      selector:
+        number:
+          mode: box
+    longitude:
+      selector:
+        number:
+          mode: box
+
+cancel_alarm:
+  name: Cancel alarm
+  description: Cancel an active alarm event.
+  fields:
+    event_id:
+      required: true
+      selector:
+        number:
+          min: 1
+          mode: box
+    pin:
+      selector:
+        text:
+
+confirm_alarm:
+  name: Confirm alarm
+  description: Confirm receipt of an alarm notification bundle.
+  fields:
+    event_bundle_id:
+      required: true
+      selector:
+        number:
+          min: 1
+          mode: box
+
+report_amber:
+  name: Report amber
+  description: Start an escort or amber event for one property.
+  target:
+    entity:
+      integration: mysolid
+  fields:
+    property_id:
+      selector:
+        number:
+          min: 1
+          mode: box
+    duration_milliseconds:
+      required: true
+      selector:
+        number:
+          min: 1
+          mode: box
+    alarm_type:
+      selector:
+        text:
+
+cancel_amber:
+  name: Cancel amber
+  description: Cancel an active amber event.
+  fields:
+    amber_id:
+      required: true
+      selector:
+        text:
+    pin:
+      selector:
+        text:
+
+execute_relay:
+  name: Execute relay
+  description: Change a relay or arm/disarm state explicitly.
+  target:
+    entity:
+      integration: mysolid
+  fields:
+    property_id:
+      selector:
+        number:
+          min: 1
+          mode: box
+    transmitter_id:
+      required: true
+      selector:
+        number:
+          min: 1
+          mode: box
+    relay_number:
+      required: true
+      selector:
+        number:
+          min: 1
+          mode: box
+    state:
+      required: true
+      selector:
+        text:
+    pin:
+      selector:
+        text:
+
+create_suspension:
+  name: Create suspension
+  description: Create an event suspension for one property.
+  target:
+    entity:
+      integration: mysolid
+  fields:
+    property_id:
+      selector:
+        number:
+          min: 1
+          mode: box
+    suspend_from:
+      required: true
+      selector:
+        text:
+    suspend_until:
+      required: true
+      selector:
+        text:
+
+delete_suspension:
+  name: Delete suspension
+  description: Delete a suspension by its event suspension ID.
+  fields:
+    event_suspension_id:
+      required: true
+      selector:
+        number:
+          min: 1
+          mode: box
+
+update_schedule_range:
+  name: Update schedule range
+  description: Update one standard schedule range.
+
+set_special_schedule:
+  name: Set special schedule
+  description: Create or replace special schedule ranges.
+
+delete_special_schedule:
+  name: Delete special schedule
+  description: Delete a special schedule range by ID.
+
+create_authorized_user:
+  name: Create authorized user
+  description: Create an authorized user for one property.
+
+update_authorized_user:
+  name: Update authorized user
+  description: Update an authorized user for one property.
+
+delete_authorized_user:
+  name: Delete authorized user
+  description: Delete an authorized user by ID.
+
+reset_authorized_user_password:
+  name: Reset authorized user password
+  description: Reset the authorized user password or PIN flow.
+
+reorder_authorized_users:
+  name: Reorder authorized users
+  description: Update the display order for authorized users.
