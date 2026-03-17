@@ -1,6 +1,6 @@
 ## MySolid
 
-[![Open your Home Assistant instance and add this repository from HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=mpapierski&repository=mysolid&category=integration)
+[![Open your Home Assistant instance and add this repository from HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=mpapierski&repository=mysolid-homeassistant&category=integration)
 
 Home Assistant custom component for MySolid / Solid Security.
 
