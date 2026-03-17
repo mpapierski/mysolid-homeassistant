@@ -320,7 +320,7 @@ def patch_supported_platforms(monkeypatch):
     monkeypatch.setattr(
         mysolid_integration,
         "PLATFORMS",
-        ["alarm_control_panel", "camera", "switch"],
+        ["alarm_control_panel", "camera", "sensor", "switch"],
     )
 
     original_camera_init = camera_platform.MySolidCameraEntity.__init__

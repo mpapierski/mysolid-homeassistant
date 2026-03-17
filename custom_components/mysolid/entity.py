@@ -23,12 +23,19 @@ def build_property_device_info(
 ) -> DeviceInfo:
     property_id = property_snapshot.details.id
     assert property_id is not None
+    address_label = (
+        property_snapshot.details.address.label()
+        if property_snapshot.details.address is not None
+        else None
+    )
     return DeviceInfo(
         identifiers={(DOMAIN, property_identifier(_entry_key(runtime), property_id))},
         manufacturer=MANUFACTURER,
         model=MODEL_PROPERTY,
-        name=property_snapshot.details.name or f"MySolid {property_id}",
-        serial_number=property_snapshot.details.external_id or str(property_id),
+        name=address_label
+        or property_snapshot.details.name
+        or f"MySolid {property_id}",
+        serial_number=None,
         configuration_url=runtime.client.host,
     )
 
